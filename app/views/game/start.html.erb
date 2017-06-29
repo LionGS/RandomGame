@@ -1,0 +1,103 @@
+<h1>지뢰찾기</h1>
+<div class="container" style="width : 500px;">
+  <% @blocks.each do |blocks_row| %>
+    <div class="row">
+      <% blocks_row.each do |block| %>
+      <div class="col tile d-flex justify-content-center align-items-center" id="<%= block.x.to_s +  block.y.to_s %>">
+        <% if block.mine%>
+          <span id="mine"><%= image_tag "Mine.ico", size: "40" %></span>
+        <% elsif block.number != 0 %>
+          <% color = case block.number %>
+           <%when 1 then "#00BFFF"%>
+           <%when 2 then "#00FF00" %>
+           <%when 3 then "#FF0000" %>
+           <%when 4 then "#0B0B61" %>
+           <%else "#000000" %>
+          <%end%>
+          <span style= "color : <%= color %>;, font-weight: bold;">
+            <%= block.number %>
+          </span>
+        <% end %>
+      </div>
+      <% end %>
+    </div>
+  <% end %>
+</div>
+
+<script>
+  $(function(){
+    $('span').hide();
+    $('div').on("contextmenu", function(event) {
+        return false;
+    });
+  });
+
+
+  $.fn.lookAround = function(){
+    var x = parseInt(parseInt($(this).attr('id'))/10);
+    var y = parseInt($(this).attr('id'))%10;
+
+    if($(this).hasClass('rotateimg180')){
+
+    }
+    else {
+      $(this).find('span').show();
+      $(this).addClass("rotateimg180");
+      $(this).find('span').addClass("rotateimg180");
+      if($(this).children().length == 0){
+        for (var i = -1; i < 2; i++) {
+          for (var j = -1; j < 2; j++) {
+            if (i != 0 || j != 0) {
+              if (x+i<10 && y+j<10) {
+                var nearID = (x+i).toString() + (y+j).toString();
+                if ($('#' + nearID).find('span').attr('id')!="mine") {
+                  $('#' + nearID).lookAround();
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    return this;
+  }
+
+
+
+  $('.tile').mousedown(function(event) {
+    switch (event.which) {
+        case 1:
+            if ($(this).hasClass('flag')) {
+
+            }
+            else{
+              $(this).find('span').show();
+              if ($(this).find('span').attr('id') == "mine"){
+                alert("Game Over!!");
+              }
+              else {
+                if($(this).hasClass('rotateimg180')){
+
+                }
+                else{
+                  $(this).lookAround();
+                }
+              }
+            }
+            break;
+        case 3:
+            if ($(this).hasClass('flag')) {
+              $(this).addClass('tile').removeClass('flag');
+            }
+            else{
+              $(this).addClass('flag').removeClass('tile');
+            }
+            break;
+        default:
+            alert('뭐눌렀어.....');
+    }
+});
+
+
+
+</script>
